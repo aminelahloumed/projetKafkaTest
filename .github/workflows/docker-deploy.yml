@@ -19,7 +19,10 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
-
+    
+    - name: Set execute permission for Maven Wrapper
+      run: chmod +x ./mvnw
+    
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
