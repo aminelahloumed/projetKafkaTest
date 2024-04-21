@@ -1,15 +1,18 @@
-# Utiliser une image de base officielle Java avec JDK 17
-FROM openjdk:17-jdk
+# Étape de compilation
+ARG JAVA_VERSION=17
+FROM openjdk:${JAVA_VERSION}-jdk as builder
+WORKDIR /workspace
 
-# Définir le répertoire de travail dans le conteneur
+# Copier les sources
+COPY . .
+# Compiler et empaqueter l'application
+RUN ./mvnw clean package -DskipTests
+
+# Étape de déploiement
+FROM openjdk:${JAVA_VERSION}-jdk
 WORKDIR /app
+# Copier seulement le jar depuis le builder
+COPY --from=builder /workspace/target/*.jar app.jar
 
-# Copier le fichier jar de l'application dans le répertoire de travail
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-
-# Exposer le port que votre application utilise, modifiez si nécessaire
 EXPOSE 8080
-
-# Exécuter l'application
 ENTRYPOINT ["java", "-jar", "app.jar"]
